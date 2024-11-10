@@ -1,9 +1,8 @@
 import pygame
 import sys
-from pygame.rect import Rect
 import time
 from random import randint
-
+import datetime
 ANCHO_VENTANA = 800
 ALTO_VENTANA = 600
 
@@ -27,10 +26,44 @@ car_2 = None
 font = None
 running = True
 
+def start__debuff_timer(car):
+    """
+    Funcion para determinar en que momento se debe terminar el EFECTO NEGATIVO al carro enemigo
+    Args:
+        car (Carro): Este es el carro el cual va a recbir el EFECTO NEGATIVO
+    """
+    # Acá es para agregar en que momento se debe terminar el efecto
+    car.debuff_time = datetime.datetime.now() + datetime.timedelta(seconds=5)
+    # Tiempo futuro cuando debe terminar ese efecto
+    # Es decir, si empezó a las .30 sgds esto le suma 5, es decir 0.35 
+
+def start__buff_timer(car):
+    """
+    Funcion para determinar en que momento se debe terminar el EFECTO POSITIVO al carro que tomó la habilidad
+    Args:
+        car (Carro): Este es el carro el cual va a recbir el EFECTO NEGATIVO
+    """
+    # Acá es para agregar en que momento se debe terminar el efecto
+    car.buff_time = datetime.datetime.now() + datetime.timedelta(seconds=5)
+    # Tiempo futuro cuando debe terminar ese efecto
+    # Es decir, si empezó a las .30 sgds esto le suma 5, es decir 0.35 
+    
+
 def speed(car):
+    """Funcion para aumentar la velocidad del carro
+
+    Args:
+        car (Carro): Carro al cual se le va a aumentar la velocidad
+    """
+    # Duplicamos la velocidad actual
     car.speed *= 2
 
 def shield(car):
+    """Funcion que le agrega el escudo al carri
+
+    Args:
+        car (Carro): Carro al cual se le va a agregar el carro
+    """
     car.shield = True
 
 def slow(car):
@@ -44,6 +77,7 @@ class Item():
         1: shield,
         2: speed
         }
+    
     types_nerf = {
         1: slow,
         2: change
@@ -83,13 +117,30 @@ class Carro():
         self.surface = pygame.image.load(img)            
         self.rect = self.surface.get_rect(center=pos)
         self.shield = False
-        self.change_controls = True
+        self.change_controls = False
         self.speed = 5
+        self.buff_time = None
+        self.debuff_time = None
+        self.buff = False
+        self.debuff = False
     
     def render(self, screen):
         if self.shield:
-            screen.blit(shield_img, self.rect.topleft)
+            screen.blit(shield_img, self.rect.topleft)    
+        if self.buff:
+            pass
+        
+        if self.debuff:
+            pass
+        
         screen.blit(self.surface, self.rect.topleft)
+
+    def timer_buff(self):
+        pass
+        
+    def timer_debuff(self):
+        if self.debuff_time >= datetime.datetime.now():
+            pass
 
 def init():
     global screen, fondo, pista, pista_rect, imagen_inicio, imagenes_numeros, car_1, car_2, font, inicio_tiempo, items_list
@@ -118,47 +169,82 @@ def init():
     
     font = pygame.font.Font('./src/font.ttf', 50)
 
-def move_car_2(keys, car):
-    global stop
-    if keys[pygame.K_LEFT] and car.rect.left > 0: 
-        car.rect.x -= car.speed 
-        
-    if keys[pygame.K_RIGHT] and car.rect.right < ANCHO_VENTANA:  
-        car.rect.x += car.speed 
-        
-    if keys[pygame.K_UP] and car.rect.top > 0:  
-        car.rect.y -= car.speed 
-        
-    if keys[pygame.K_DOWN] and car.rect.bottom < ALTO_VENTANA:  
-        car.rect.y += car.speed 
-        x, y = car.rect.bottomleft
-        screen.blit(stop, (x - 15, y -55))
-        screen.blit(stop, (x + 45, y -55))
-               
-def move_car(keys, car_2: Carro):
-    if keys[pygame.K_a] and car_2.rect.left > 0:  
-        if car_2.change_controls:
-            car_2.rect.x += car_2.speed
+def limit(car: Carro):
+    if car.rect.left <= 0:
+        car.rect.left = 0
+
+    if car.rect.right >= ANCHO_VENTANA:
+        car.rect.right = ANCHO_VENTANA
+
+    if car.rect.top <= 0:
+        car.rect.top = 0
+
+    if car.rect.bottom >= ALTO_VENTANA:
+        car.rect.bottom = ALTO_VENTANA
+
+def stop_lights(car, screen):
+    x, y = car.rect.bottomleft
+    screen.blit(stop, (x - 15, y -55))
+    screen.blit(stop, (x + 45, y -55))
+
+def move_car_arrows(keys, car):
+    if keys[pygame.K_LEFT]:
+        if car.change_controls:
+            car.rect.x += car.speed
         else:
-            car_2.rect.x -= car_2.speed
+            car.rect.x -= car.speed
     
-    if keys[pygame.K_d] and car_2.rect.right < ANCHO_VENTANA:  
-        if car_2.change_controls:
-            car_2.rect.x -= car_2.speed
+    if keys[pygame.K_RIGHT]:
+        if car.change_controls:
+            car.rect.x -= car.speed
         else:
-            car_2.rect.x += car_2.speed
+            car.rect.x += car.speed
 
-    if keys[pygame.K_w] and car_2.rect.top > 0:  
-        if car_2.change_controls:
-            car_2.rect.y += car_2.speed
+    if keys[pygame.K_UP]:
+        if car.change_controls:
+            stop_lights(car, screen)
+            car.rect.y += car.speed
         else:
-            car_2.rect.y -= car_2.speed
+            car.rect.y -= car.speed
 
-    if keys[pygame.K_s] and car_2.rect.bottom < ALTO_VENTANA:
-        car_2.rect.y += car_2.speed 
-        x, y = car_2.rect.bottomleft
-        screen.blit(stop, (x - 15, y -55))
-        screen.blit(stop, (x + 45, y -55))
+    if keys[pygame.K_DOWN]:
+        if car.change_controls:
+            car.rect.y -= car.speed 
+        else:
+            car.rect.y += car.speed 
+            stop_lights(car, screen)
+    
+    limit(car)
+
+def move_car_keys(keys, car: Carro):
+    
+    if keys[pygame.K_a]:
+        if car.change_controls:
+            car.rect.x += car.speed
+        else:
+            car.rect.x -= car.speed
+    
+    if keys[pygame.K_d]:
+        if car.change_controls:
+            car.rect.x -= car.speed
+        else:
+            car.rect.x += car.speed
+
+    if keys[pygame.K_w]:
+        if car.change_controls:
+            stop_lights(car, screen)
+            car.rect.y += car.speed
+        else:
+            car.rect.y -= car.speed
+
+    if keys[pygame.K_s]:
+        if car.change_controls:
+            car.rect.y -= car.speed 
+        else:
+            car.rect.y += car.speed 
+            stop_lights(car, screen)
+    
+    limit(car)
 
 def winner(text):
     global running
@@ -167,13 +253,16 @@ def winner(text):
     pygame.time.delay(1000)
     running = False
 
-def effect(item: Item, carBuff, carNerf):
+def effect(item: Item, carBuff: Carro, carNerf: Carro):
     # Mejora directa 
-    print(item.type)
     if item.is_buff:
+        start__buff_timer()
+        carBuff.buff = True
         item.type(carBuff)
     # Mejora indirecta
     else:
+        start__debuff_timer()
+        carNerf.debuff = True
         item.type(carNerf)
 
 def main():
@@ -268,10 +357,9 @@ def main():
         car_1.render(screen)
         car_2.render(screen)
           
-        move_car(keys, car_1)
-        move_car_2(keys, car_2) 
+        move_car_keys(keys, car_1)
+        move_car_arrows(keys, car_2) 
         
-    print(car_1.shield)
     pygame.display.update()
 
     
