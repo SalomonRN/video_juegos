@@ -123,24 +123,43 @@ class Carro():
         self.debuff_time = None
         self.buff = False
         self.debuff = False
+    # en el caso que tiene el benifico el carro
+    def activar_buff(self, buff_func):
+        self.buff = True
+        buff_func(self)
+        # despues de los 5 segundos termina el beneficio
+        self.buff_time = datetime.datetime.now() + datetime.timedelta(seconds=5)
+
+    def desactivar_buff(self):
+        self.buff = False
+        # vuelve la velocidad y propiedades al estado normal
+        self.speed = 5
+        self.change_controls = False
+        self.shield = False 
     
+    def activar_debuff(self, debuff_func):
+        self.debuff = True
+        debuff_func(self)
+        self.debuff_time = datetime.datetime.now() + datetime.timedelta(seconds=5)
+
+    def desactivar_debuff(self):
+        self.debuff = False
+        self.speed = 5
+        self.change_controls = False
+
+    def actualizar_efectos(self):
+        # para que se descative el buff o debuff si supera el tiempo actual
+        if self.buff and datetime.datetime.now() >= self.buff_time:
+            self.desactivar_buff()
+
+        if self.debuff and datetime.datetime.now() >= self.debuff_time:
+            self.desactivar_debuff()
+
     def render(self, screen):
         if self.shield:
-            screen.blit(shield_img, self.rect.topleft)    
-        if self.buff:
-            pass
-        
-        if self.debuff:
-            pass
-        
+            # rendirizr imagen del escudo debajo de la posicion del carro
+            screen.blit(shield_img, self.rect.topleft) 
         screen.blit(self.surface, self.rect.topleft)
-
-    def timer_buff(self):
-        pass
-        
-    def timer_debuff(self):
-        if self.debuff_time >= datetime.datetime.now():
-            pass
 
 def init():
     global screen, fondo, pista, pista_rect, imagen_inicio, imagenes_numeros, car_1, car_2, font, inicio_tiempo, items_list
@@ -256,14 +275,19 @@ def winner(text):
 def effect(item: Item, carBuff: Carro, carNerf: Carro):
     # Mejora directa 
     if item.is_buff:
-        start__buff_timer()
+        start__buff_timer(carBuff)
         carBuff.buff = True
         item.type(carBuff)
     # Mejora indirecta
     else:
-        start__debuff_timer()
+        start__debuff_timer(carBuff)
         carNerf.debuff = True
         item.type(carNerf)
+
+def indirect_benefit(car: Carro):
+    start__debuff_timer(car)
+    car.debuff = True  
+    car.types_nerf.get(randint(1, len(car.types_nerf)))(car)  
 
 def main():
     global screen, fondo, inicio_tiempo, car_1, car_2, running, font, obs_list, posicion_pista_y
@@ -367,6 +391,11 @@ def main():
 
 if __name__ == "__main__":
     pygame.init()
+    pygame.mixer.init()
+    
+    pygame.mixer.music.load("music/KILLING MY LOVE.mp3")
+    pygame.mixer.music.play(-1) 
+
     init()
     inicio_tiempo = time.time()  
     
