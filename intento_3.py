@@ -90,7 +90,7 @@ class Item():
     }
     def __init__(self, img, is_buff) -> None:
         self.surface = pygame.image.load(img)
-        self.scale_surface = pygame.transform.scale(self.surface, (75, 75))
+        self.scale_surface = pygame.transform.scale(self.surface, (60, 60))
         self.rect = self.scale_surface.get_rect()
         self.rect.x = randint(200, 500)
         self.is_buff = is_buff
@@ -320,7 +320,7 @@ def main():
             obs_list.append(Obstaculo("./src/items/Barrel.png"))
         
         if event.type == ITEM_EVENT:
-            items_list.append(Item("./src/items/Oil.png", randint(0, 1)))
+            items_list.append(Item("./src/items/Item.png", randint(0, 1)))
             
         
     screen.blit(fondo, (0, 0))
