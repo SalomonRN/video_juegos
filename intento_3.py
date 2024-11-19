@@ -25,6 +25,12 @@ car_1 = None
 car_2 = None
 font = None
 running = True
+pygame.mixer.init()
+collision_sound = pygame.mixer.Sound("music/golpe.mp3")
+pygame.mixer.init()
+sonido_acelerar = pygame.mixer.Sound("music/acelerar.mp3")
+pygame.mixer.init()
+sonido_frenar = pygame.mixer.Sound("music/frenar.mp3")
 
 def start__debuff_timer(car):
     """
@@ -207,6 +213,7 @@ def stop_lights(car, screen):
     screen.blit(stop, (x + 45, y -55))
 
 def move_car_arrows(keys, car):
+    global sonido_acelerar_playing_time 
     if keys[pygame.K_LEFT]:
         if car.change_controls:
             car.rect.x += car.speed
@@ -225,6 +232,9 @@ def move_car_arrows(keys, car):
             car.rect.y += car.speed
         else:
             car.rect.y -= car.speed
+            sonido_acelerar.play()
+            sonido_acelerar.play(maxtime=1000)
+            pygame.mixer.music.set_volume(0.1)
 
     if keys[pygame.K_DOWN]:
         if car.change_controls:
@@ -232,11 +242,11 @@ def move_car_arrows(keys, car):
         else:
             car.rect.y += car.speed 
             stop_lights(car, screen)
+            sonido_frenar.play() 
     
     limit(car)
 
 def move_car_keys(keys, car: Carro):
-    
     if keys[pygame.K_a]:
         if car.change_controls:
             car.rect.x += car.speed
@@ -255,6 +265,10 @@ def move_car_keys(keys, car: Carro):
             car.rect.y += car.speed
         else:
             car.rect.y -= car.speed
+            sonido_acelerar.play()
+            sonido_acelerar.play(maxtime=1000)
+            sonido_acelerar_playing_time = pygame.time.get_ticks() 
+            pygame.mixer.music.set_volume(0.0)
 
     if keys[pygame.K_s]:
         if car.change_controls:
@@ -262,6 +276,7 @@ def move_car_keys(keys, car: Carro):
         else:
             car.rect.y += car.speed 
             stop_lights(car, screen)
+            sonido_frenar.play() 
     
     limit(car)
 
@@ -349,6 +364,7 @@ def main():
                     obs_list.remove(obs)
                     car_1.shield = False 
                 else:
+                    collision_sound.play()
                     text = font.render("JUGADOR 2 HA GANADO", 1, "Black")
                     return winner(text)
                                     
@@ -357,6 +373,7 @@ def main():
                     obs_list.remove(obs)
                     car_2.shield = False 
                 else:
+                    collision_sound.play()
                     text = font.render("JUGADOR 1 HA GANADO", 1, "Black")
                     return winner(text)
             
@@ -394,6 +411,7 @@ if __name__ == "__main__":
     pygame.mixer.init()
     
     pygame.mixer.music.load("music/KILLING MY LOVE.mp3")
+    pygame.mixer.music.set_volume(0.3)
     pygame.mixer.music.play(-1) 
 
     init()
