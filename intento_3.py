@@ -167,11 +167,11 @@ class Carro():
             screen.blit(shield_img, self.rect.topleft) 
         screen.blit(self.surface, self.rect.topleft)
 
-def init():
+def init(CARS):
     global screen, fondo, pista, pista_rect, imagen_inicio, imagenes_numeros, car_1, car_2, font, inicio_tiempo, items_list
     
     screen = pygame.display.set_mode((ANCHO_VENTANA, ALTO_VENTANA))
-    pygame.display.set_caption("Carrera en línea recta")
+    pygame.display.set_caption("Race Game")
    
     fondo = pygame.image.load('./img/fondo_pasto.png').convert_alpha()
     fondo = pygame.transform.scale(fondo, (ANCHO_VENTANA, ALTO_VENTANA))
@@ -188,18 +188,19 @@ def init():
         pygame.image.load(f'./img/{i}.png').convert_alpha() 
         for i in range(6)
     ]
-
-    car_1 = Carro('./img/car.png', (250, 500))
-    car_2 = Carro('./img/car_2.png', (450, 500))
+    car_1 = CARS[0]
+    car_2 = CARS[1]
+    car_1.rect = car_1.surface.get_rect(center=(250, 500))
+    car_2.rect = car_2.surface.get_rect(center=(450, 500))
     
     font = pygame.font.Font('./src/font.ttf', 50)
 
 def limit(car: Carro):
-    if car.rect.left <= 0:
-        car.rect.left = 0
+    if car.rect.left <= 130:
+        car.rect.left = 130
 
-    if car.rect.right >= ANCHO_VENTANA:
-        car.rect.right = ANCHO_VENTANA
+    if car.rect.right >= 585:
+        car.rect.right = 585
 
     if car.rect.top <= 0:
         car.rect.top = 0
@@ -286,6 +287,7 @@ def winner(text):
     pygame.display.update()
     pygame.time.delay(1000)
     running = False
+    sys.exit()
 
 def effect(item: Item, carBuff: Carro, carNerf: Carro):
     # Mejora directa 
@@ -328,8 +330,7 @@ def main():
     
     keys = pygame.key.get_pressed()
 
-    # if tiempo_transcurrido < duracion_temporizador:
-    if False:
+    if tiempo_transcurrido < duracion_temporizador:
         screen.blit(imagen_inicio, (0, -400)) 
 
         numero_a_mostrar = int(duracion_temporizador - (tiempo_transcurrido))
@@ -344,7 +345,7 @@ def main():
                                         // 2))
         obs_list = []
     else:
-        
+        print(pygame.mouse.get_pos())
         posicion_pista_y += velocidad_pista
 
         
@@ -366,7 +367,7 @@ def main():
                 else:
                     collision_sound.play()
                     text = font.render("JUGADOR 2 HA GANADO", 1, "Black")
-                    return winner(text)
+                    winner(text)            
                                     
             if car_2.rect.colliderect(obs.rect):
                 if car_2.shield:
@@ -375,7 +376,7 @@ def main():
                 else:
                     collision_sound.play()
                     text = font.render("JUGADOR 1 HA GANADO", 1, "Black")
-                    return winner(text)
+                    winner(text)
             
             if obs.rect.y >= ALTO_VENTANA:
                 obs_list.remove(obs)
@@ -406,7 +407,8 @@ def main():
     
     pygame.time.Clock().tick(60)  
 
-if __name__ == "__main__":
+def init_game(CARS):
+    global inicio_tiempo 
     pygame.init()
     pygame.mixer.init()
     
@@ -414,7 +416,7 @@ if __name__ == "__main__":
     pygame.mixer.music.set_volume(0.3)
     pygame.mixer.music.play(-1) 
 
-    init()
+    init(CARS)
     inicio_tiempo = time.time()  
     
     while running:
