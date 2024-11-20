@@ -12,6 +12,11 @@ BACKGORUND_MENU = pygame.transform.scale(pygame.image.load("img/menu/back_menu.p
 
 FONT =  pygame.font.Font("src/font.ttf", 60)
 
+pygame.mixer.init()
+pygame.mixer.music.load("music/menu.mp3")  # Ruta de tu archivo de música
+pygame.mixer.music.set_volume(0.5)  # Ajusta el volumen (opcional)
+pygame.mixer.music.play(-1) 
+
 class Button:
     """
     Clase para poner generar los botones de opciones

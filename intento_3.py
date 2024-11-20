@@ -243,7 +243,9 @@ def move_car_arrows(keys, car):
         else:
             car.rect.y += car.speed 
             stop_lights(car, screen)
-            sonido_frenar.play() 
+            sonido_frenar.play()
+            sonido_frenar.play(maxtime=1000)
+            pygame.mixer.music.set_volume(0.1) 
     
     limit(car)
 
@@ -268,8 +270,7 @@ def move_car_keys(keys, car: Carro):
             car.rect.y -= car.speed
             sonido_acelerar.play()
             sonido_acelerar.play(maxtime=1000)
-            sonido_acelerar_playing_time = pygame.time.get_ticks() 
-            pygame.mixer.music.set_volume(0.0)
+            pygame.mixer.music.set_volume(0.1)
 
     if keys[pygame.K_s]:
         if car.change_controls:
@@ -278,6 +279,8 @@ def move_car_keys(keys, car: Carro):
             car.rect.y += car.speed 
             stop_lights(car, screen)
             sonido_frenar.play() 
+            sonido_frenar.play(maxtime=1000)
+            pygame.mixer.music.set_volume(0.1)
     
     limit(car)
 
