@@ -5,7 +5,7 @@ from random import randint
 import datetime
 ANCHO_VENTANA = 800
 ALTO_VENTANA = 600
-
+pygame.display.set_icon(pygame.image.load("src/racing.png"))
 OBSTACLE_EVENT = pygame.USEREVENT + 1
 ITEM_EVENT = pygame.USEREVENT + 2
 
@@ -193,7 +193,7 @@ def init(CARS):
     car_1.rect = car_1.surface.get_rect(center=(250, 500))
     car_2.rect = car_2.surface.get_rect(center=(450, 500))
     
-    font = pygame.font.Font('./src/font.ttf', 50)
+    font = pygame.font.Font('./src/font.ttf', 40)
 
 def limit(car: Carro):
     if car.rect.left <= 130:
@@ -348,7 +348,6 @@ def main():
                                         // 2))
         obs_list = []
     else:
-        print(pygame.mouse.get_pos())
         posicion_pista_y += velocidad_pista
 
         

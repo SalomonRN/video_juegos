@@ -1,12 +1,13 @@
 import pygame, sys
-from intento_3 import Carro
-from intento_3 import init_game
+from game import Carro
+from game import init_game
 
 pygame.init()
 ALTO = 600
 ANCHO = 800
 SCREEN = pygame.display.set_mode((ANCHO, ALTO))
 pygame.display.set_caption("Race Game")
+pygame.display.set_icon(pygame.image.load("src/racing.png"))
 CARROS_SELEC = []
 BACKGORUND_MENU = pygame.transform.scale(pygame.image.load("img/menu/back_menu.png"), (ANCHO, ALTO))
 
